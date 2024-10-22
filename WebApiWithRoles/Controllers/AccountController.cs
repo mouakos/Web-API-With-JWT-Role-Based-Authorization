@@ -29,7 +29,7 @@ public class AccountController(
     }
 
     [HttpPost("assign-role")]
-    public async Task<IActionResult> AssignRole([FromBody] UserRole model)
+    public async Task<IActionResult> AssignRole([FromBody] UserRoleDto model)
     {
         var user = await userManager.FindByNameAsync(model.Username);
         if (user == null) return BadRequest("User not found");
@@ -40,7 +40,7 @@ public class AccountController(
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] Login model)
+    public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
         var user = await userManager.FindByNameAsync(model.Username);
 
@@ -67,7 +67,7 @@ public class AccountController(
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] Register model)
+    public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
         var user = new IdentityUser { UserName = model.Username, Email = model.Email };
         var result = await userManager.CreateAsync(user, model.Password);

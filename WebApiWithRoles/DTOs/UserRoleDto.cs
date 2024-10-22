@@ -1,6 +1,6 @@
 ﻿namespace WebApiWithRoles.Models;
 
-public class UserRole
+public class UserRoleDto
 {
     #region Public properties declaration
 
