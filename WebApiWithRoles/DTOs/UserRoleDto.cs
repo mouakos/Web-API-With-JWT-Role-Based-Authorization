@@ -1,11 +1,14 @@
-﻿namespace WebApiWithRoles.Models;
+﻿using Microsoft.Build.Framework;
+
+namespace WebApiWithRoles.DTOs;
 
 public class UserRoleDto
 {
     #region Public properties declaration
 
-    public string Role { get; set; } = string.Empty;
-    public string Username { get; set; } = string.Empty;
+    [Required] public string Role { get; set; } = string.Empty;
+
+    [Required] public string Username { get; set; } = string.Empty;
 
     #endregion
 }

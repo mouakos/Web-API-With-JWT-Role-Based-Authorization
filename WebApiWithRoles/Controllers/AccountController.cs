@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using WebApiWithRoles.Models;
+using WebApiWithRoles.DTOs;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace WebApiWithRoles.Controllers;
@@ -19,8 +19,9 @@ public class AccountController(
     #region Public methods declaration
 
     [HttpPost("add-role")]
-    public async Task<IActionResult> AddRole([FromBody] string role)
+    public async Task<IActionResult> AddRole([FromBody] string? role)
     {
+        if (role == null) return BadRequest("Invalid role");
         if (await roleManager.RoleExistsAsync(role)) return BadRequest("Role already exist");
         var result = await roleManager.CreateAsync(new IdentityRole(role));
         if (result.Succeeded)
@@ -31,6 +32,8 @@ public class AccountController(
     [HttpPost("assign-role")]
     public async Task<IActionResult> AssignRole([FromBody] UserRoleDto model)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var user = await userManager.FindByNameAsync(model.Username);
         if (user == null) return BadRequest("User not found");
         var result = await userManager.AddToRoleAsync(user, model.Role);
@@ -42,6 +45,9 @@ public class AccountController(
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var user = await userManager.FindByNameAsync(model.Username);
 
         if (user == null || !await userManager.CheckPasswordAsync(user, model.Password))
@@ -69,6 +75,8 @@ public class AccountController(
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var user = new IdentityUser { UserName = model.Username, Email = model.Email };
         var result = await userManager.CreateAsync(user, model.Password);
         if (result.Succeeded) return Ok(new { message = "User registered Successfully" });
