@@ -1,8 +1,10 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WebApiWithRoles.ActionsFilters;
 using WebApiWithRoles.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,13 +16,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Suppress automatically API controller model validation
+builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
+
+// Add Validation filter
+builder.Services.AddScoped<ModelValidationFilterAttribute>();
+
 /* Database */
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ??
                       throw new InvalidOperationException("Sorry, your connection is not found"));
 });
-
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     {

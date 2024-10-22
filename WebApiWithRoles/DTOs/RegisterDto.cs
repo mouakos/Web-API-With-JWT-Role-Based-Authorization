@@ -6,12 +6,12 @@ public class RegisterDto
 {
     #region Public properties declaration
 
-    [Microsoft.Build.Framework.Required] public string Email { get; set; } = string.Empty;
+    [Required] public string? Email { get; set; }
 
-    [Microsoft.Build.Framework.Required, DataType(DataType.Password)]
-    public string Password { get; set; } = string.Empty;
+    [Required, DataType(DataType.Password)]
+    public string? Password { get; set; }
 
-    [Microsoft.Build.Framework.Required] public string Username { get; set; } = string.Empty;
+    [Required] public string? Username { get; set; }
 
     #endregion
 }
