@@ -27,7 +27,7 @@ public class AccountService(
     /// <inheritdoc />
     public async Task<GeneralResponse> AssignRoleAsync(UserRoleDto userRoleDto)
     {
-        var user = await userManager.FindByNameAsync(userRoleDto.Username!);
+        var user = await userManager.FindByEmailAsync(userRoleDto.Email!);
         if (user == null) return new GeneralResponse { Message = "User not found" };
 
         if (!await roleManager.RoleExistsAsync(userRoleDto.Role!))
@@ -44,7 +44,7 @@ public class AccountService(
     public async Task<LoginResponse> AuthenticateAsync(LoginDto loginDto)
     {
         var response = new LoginResponse();
-        var user = await userManager.FindByNameAsync(loginDto.Username!);
+        var user = await userManager.FindByEmailAsync(loginDto.Email!);
 
         if (user == null || !await userManager.CheckPasswordAsync(user, loginDto.Password!))
         {
@@ -63,7 +63,7 @@ public class AccountService(
     /// <inheritdoc />
     public async Task<GeneralResponse> RegisterAsync(RegisterDto registerDto)
     {
-        var user = new IdentityUser { UserName = registerDto.Username, Email = registerDto.Email };
+        var user = new IdentityUser { Email = registerDto.Email, UserName = registerDto.Email };
         var result = await userManager.CreateAsync(user, registerDto.Password!);
         return result.Succeeded
             ? new GeneralResponse { Message = "User registered Successfully", IsSuccess = true }

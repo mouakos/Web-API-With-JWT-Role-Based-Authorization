@@ -43,7 +43,7 @@ public class JwtHandler(IConfiguration configuration)
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user.UserName!),
+            new(ClaimTypes.Name, user.Email!),
         };
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
         return claims;

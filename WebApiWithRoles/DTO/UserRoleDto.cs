@@ -8,7 +8,7 @@ public class UserRoleDto
 
     [Required] public string? Role { get; set; }
 
-    [Required] public string? Username { get; set; }
+    [Required, EmailAddress] public string? Email { get; set; }
 
     #endregion
 }
