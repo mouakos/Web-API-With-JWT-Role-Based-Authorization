@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebApiWithRoles.ActionsFilters;
 using WebApiWithRoles.Data;
+using WebApiWithRoles.ExceptionHandling;
 using WebApiWithRoles.Interfaces;
 using WebApiWithRoles.JwtFeatures;
 using WebApiWithRoles.Services;
@@ -73,11 +74,15 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("UserPolicy", policy => policy.RequireRole("User"));
+    options.AddPolicy("VisitorPolicy", policy => policy.RequireRole("Visitor"));
 });
 
 
 var app = builder.Build();
+
+// Add exception middleware
+app.UseMiddleware<ExceptionMiddleware>();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

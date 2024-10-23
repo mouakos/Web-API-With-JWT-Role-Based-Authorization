@@ -39,11 +39,11 @@ public class JwtHandler(IConfiguration configuration)
         );
     }
 
-    private List<Claim> GetClaims(IdentityUser user, List<string> roles)
+    private static List<Claim> GetClaims(IdentityUser user, List<string> roles)
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user.UserName!)
+            new(ClaimTypes.Name, user.UserName!),
         };
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
         return claims;
