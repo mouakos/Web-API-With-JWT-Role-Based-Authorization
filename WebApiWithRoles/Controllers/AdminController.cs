@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApiWithRoles.Controllers;
 
-[Authorize(Policy = "AdminPolicy")]
-//[Authorize(Roles = "Admin")]
+//[Authorize(Policy = "AdminPolicy")]
+[Authorize(Roles = "Admin")]
 [Route("api/[controller]")]
 [ApiController]
 public class AdminController : ControllerBase

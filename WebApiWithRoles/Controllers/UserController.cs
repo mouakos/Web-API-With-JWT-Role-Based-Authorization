@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApiWithRoles.Controllers;
 
-[Authorize(Policy = "UserPolicy")]
+[Authorize(Roles = "User")]
 [Route("api/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
