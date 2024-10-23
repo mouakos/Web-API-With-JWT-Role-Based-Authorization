@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebApiWithRoles.ActionsFilters;
 using WebApiWithRoles.Data;
+using WebApiWithRoles.Interfaces;
+using WebApiWithRoles.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelS
 
 // Add Validation filter
 builder.Services.AddScoped<ModelValidationFilterAttribute>();
+
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 /* Database */
 builder.Services.AddDbContext<AppDbContext>(options =>
