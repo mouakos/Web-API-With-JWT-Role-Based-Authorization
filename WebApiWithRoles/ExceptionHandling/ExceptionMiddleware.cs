@@ -22,6 +22,12 @@ public class ExceptionMiddleware(RequestDelegate requestDelegate)
         httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         httpContext.Response.ContentType = "application/json";
 
+        var message = exception switch
+        {
+            AccessViolationException => "Access violation exception",
+            _ => "Internal server error"
+        };
+
         await httpContext.Response.WriteAsync(new ErrorDetails
         {
             StatusCode = httpContext.Response.StatusCode,
