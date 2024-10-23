@@ -1,27 +1,27 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using WebApiWithRoles.DTOs;
-using WebApiWithRoles.DTOs.Response;
+using WebApiWithRoles.DTO;
+using WebApiWithRoles.DTO.Responses;
 using WebApiWithRoles.Interfaces;
+using WebApiWithRoles.JwtFeatures;
 
 namespace WebApiWithRoles.Services;
 
 public class AccountService(
     UserManager<IdentityUser> userManager,
     RoleManager<IdentityRole> roleManager,
-    IConfiguration configuration) : IAccountService
+    JwtHandler jwtHandler) : IAccountService
 {
+    #region Public methods declaration
+
     /// <inheritdoc />
-    public async Task<GeneralResponse> CreateAsync(RegisterDto registerDto)
+    public async Task<GeneralResponse> AddRoleAsync(string role)
     {
-        var user = new IdentityUser { UserName = registerDto.Username, Email = registerDto.Email };
-        var result = await userManager.CreateAsync(user, registerDto.Password!);
+        if (await roleManager.RoleExistsAsync(role)) return new GeneralResponse { Message = "Role already exists" };
+        var result = await roleManager.CreateAsync(new IdentityRole(role));
+
         return result.Succeeded
-            ? new LoginResponse { Message = "User registered Successfully", IsSuccess = true }
-            : new LoginResponse { Message = result.Errors.First().Description, IsSuccess = false };
+            ? new GeneralResponse { Message = "Role added successfully", IsSuccess = true }
+            : new GeneralResponse { Message = result.Errors.First().Description };
     }
 
     /// <inheritdoc />
@@ -41,53 +41,34 @@ public class AccountService(
     }
 
     /// <inheritdoc />
-    public async Task<GeneralResponse> AddRoleAsync(string role)
-    {
-        if (await roleManager.RoleExistsAsync(role)) return new GeneralResponse { Message = "Role already exists" };
-        var result = await roleManager.CreateAsync(new IdentityRole(role));
-
-        return result.Succeeded
-            ? new GeneralResponse { Message = "Role added successfully", IsSuccess = true }
-            : new GeneralResponse { Message = result.Errors.First().Description };
-    }
-
-    /// <inheritdoc />
-    public async Task<LoginResponse> LoginAsync(LoginDto loginDto)
+    public async Task<LoginResponse> AuthenticateAsync(LoginDto loginDto)
     {
         var response = new LoginResponse();
         var user = await userManager.FindByNameAsync(loginDto.Username!);
 
         if (user == null || !await userManager.CheckPasswordAsync(user, loginDto.Password!))
         {
-            response.Message = "Invalid username / password";
+            response.Message = "Invalid authentication";
             return response;
         }
 
-        var token = await GenerateTokenAsync(user);
-        response.Message = "Login successfully";
+        var role = await userManager.GetRolesAsync(user);
+        var token = jwtHandler.GenerateToken(user, role.ToList());
+        response.Message = "Authentication successfully";
         response.Token = token;
         response.IsSuccess = true;
         return response;
     }
 
-    private async Task<string> GenerateTokenAsync(IdentityUser user)
+    /// <inheritdoc />
+    public async Task<GeneralResponse> RegisterAsync(RegisterDto registerDto)
     {
-        var userRoles = await userManager.GetRolesAsync(user);
-        var authClaims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.UserName!),
-            new(JwtRegisteredClaimNames.Jti, user.Id)
-        };
-        authClaims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-        var token = new JwtSecurityToken(
-            configuration["Jwt:Issuer"],
-            expires: DateTime.Now.AddMinutes(double.Parse(configuration["Jwt:ExpiryMinutes"]!)),
-            claims: authClaims,
-            signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!)),
-                SecurityAlgorithms.HmacSha256)
-        );
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var user = new IdentityUser { UserName = registerDto.Username, Email = registerDto.Email };
+        var result = await userManager.CreateAsync(user, registerDto.Password!);
+        return result.Succeeded
+            ? new GeneralResponse { Message = "User registered Successfully", IsSuccess = true }
+            : new GeneralResponse { Message = result.Errors.First().Description, IsSuccess = false };
     }
+
+    #endregion
 }

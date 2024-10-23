@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApiWithRoles.DTOs;
+namespace WebApiWithRoles.DTO;
 
 public class UserRoleDto
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApiWithRoles.ActionsFilters;
-using WebApiWithRoles.DTOs;
+using WebApiWithRoles.DTO;
 using WebApiWithRoles.Interfaces;
 
 namespace WebApiWithRoles.Controllers;
@@ -37,7 +37,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ServiceFilter(typeof(ModelValidationFilterAttribute))]
     public async Task<IActionResult> Login([FromBody] LoginDto model)
     {
-        var result = await accountService.LoginAsync(model);
+        var result = await accountService.AuthenticateAsync(model);
 
         if (result.IsSuccess)
             return Ok(result);
@@ -48,7 +48,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ServiceFilter(typeof(ModelValidationFilterAttribute))]
     public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {
-        var result = await accountService.CreateAsync(model);
+        var result = await accountService.RegisterAsync(model);
 
         if (result.IsSuccess)
             return Ok(result);

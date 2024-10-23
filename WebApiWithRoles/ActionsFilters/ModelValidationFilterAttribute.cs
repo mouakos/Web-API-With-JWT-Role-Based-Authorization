@@ -5,17 +5,18 @@ namespace WebApiWithRoles.ActionsFilters;
 
 public class ModelValidationFilterAttribute : IActionFilter
 {
-    /// <inheritdoc />
-    public void OnActionExecuting(ActionExecutingContext context)
-    {
-        if (!context.ModelState.IsValid)
-        {
-            context.Result = new BadRequestObjectResult(context.ModelState);
-        }
-    }
+    #region Public methods declaration
 
     /// <inheritdoc />
     public void OnActionExecuted(ActionExecutedContext context)
     {
     }
+
+    /// <inheritdoc />
+    public void OnActionExecuting(ActionExecutingContext context)
+    {
+        if (!context.ModelState.IsValid) context.Result = new BadRequestObjectResult(context.ModelState);
+    }
+
+    #endregion
 }

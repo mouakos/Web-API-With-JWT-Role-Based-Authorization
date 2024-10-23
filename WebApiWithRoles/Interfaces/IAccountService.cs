@@ -1,12 +1,16 @@
-﻿using WebApiWithRoles.DTOs;
-using WebApiWithRoles.DTOs.Response;
+﻿using WebApiWithRoles.DTO;
+using WebApiWithRoles.DTO.Responses;
 
 namespace WebApiWithRoles.Interfaces;
 
 public interface IAccountService
 {
-    Task<GeneralResponse> CreateAsync(RegisterDto registerDto);
-    Task<GeneralResponse> AssignRoleAsync(UserRoleDto userRoleDto);
+    #region Public methods declaration
+
     Task<GeneralResponse> AddRoleAsync(string role);
-    Task<LoginResponse> LoginAsync(LoginDto loginDto);
+    Task<GeneralResponse> AssignRoleAsync(UserRoleDto userRoleDto);
+    Task<LoginResponse> AuthenticateAsync(LoginDto loginDto);
+    Task<GeneralResponse> RegisterAsync(RegisterDto registerDto);
+
+    #endregion
 }

@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using WebApiWithRoles.ActionsFilters;
 using WebApiWithRoles.Data;
 using WebApiWithRoles.Interfaces;
+using WebApiWithRoles.JwtFeatures;
 using WebApiWithRoles.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelS
 builder.Services.AddScoped<ModelValidationFilterAttribute>();
 
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddSingleton<JwtHandler>();
 
 /* Database */
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -44,6 +46,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+var jwtSettings = builder.Configuration.GetRequiredSection("JwtSettings");
+
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -55,14 +59,17 @@ builder.Services.AddAuthentication(options =>
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidateAudience = false,
+            ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            ValidAudience = jwtSettings.GetRequiredSection("ValidIssuer").Value,
+            ValidIssuer = jwtSettings.GetRequiredSection("ValidAudience").Value,
+            IssuerSigningKey =
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetRequiredSection("Key").Value!))
         };
     });
 
+// Roles policy
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
